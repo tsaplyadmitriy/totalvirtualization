@@ -1,0 +1,39 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: sender
+  labels:
+    name: sender
+  namespace: lab5
+spec:
+  ports:
+    - nodePort: 30164
+      port: 8082
+      targetPort: 8082
+      protocol: TCP
+  selector:
+    app: sender
+  type: NodePort
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sender
+  namespace: lab5
+spec:
+  selector:
+    matchLabels:
+      app: sender
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sender
+    spec:
+      containers:
+        - name: sender
+          image: tsaplyadmitriy/lab5-sender
+          ports:
+            - containerPort: 8082
+          

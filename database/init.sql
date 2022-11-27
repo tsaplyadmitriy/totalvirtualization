@@ -1,0 +1,4 @@
+BEGIN;
+CREATE TABLE odd (value INTEGER);
+CREATE TABLE even (value INTEGER);
+COMMIT;

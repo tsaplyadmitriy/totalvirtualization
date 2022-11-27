@@ -1,0 +1,72 @@
+version: '2'
+
+networks:
+  lab5:
+    name: lab5
+    driver: bridge
+
+services:
+  rabbitmq:
+    hostname: rabbitmq
+    container_name: rabbitmq
+    image: rabbitmq:3-management
+    networks:
+      - lab5
+    mem_reservation: 128M
+    mem_limit: 512m
+    ports:
+      - 5672:5672
+      - 15672:15672
+    expose:
+      - 5672
+      - 15672
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:15672" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  postgres:
+    hostname: postgres
+    networks:
+      - lab5
+    image: tsaplyadmitriy/lab5-db
+    container_name: postgres
+    mem_limit: 512m
+    mem_reservation: 128M
+    ports:
+      - 5432:5432
+    expose:
+      - 5432
+
+  sender:
+    image: tsaplyadmitriy/lab5-sender
+    mem_limit: 512m
+    mem_reservation: 128M
+    container_name: sender
+    networks:
+      - lab5
+    ports:
+      - 8082:8082
+    restart: on-failure
+    expose:
+      - 8082
+    depends_on:
+      - rabbitmq
+      - postgres
+
+  reciever:
+    image: tsaplyadmitriy/lab5-reciever
+    mem_limit: 512m
+    mem_reservation: 128M
+    container_name: reciever
+    networks:
+      - lab5
+    ports:
+      - 8083:8083
+    restart: on-failure
+    expose:
+      - 8083
+    depends_on:
+      - rabbitmq
+      - postgres
